@@ -1,0 +1,35 @@
+{
+    "name": "Restaurant Reviews Progressive Web App",
+    "short_name": "Restaurant Reviews",
+    "start_url": "/index.html",
+    "scope": ".",
+    "icons": [
+        {
+            "src": "/img/salt-shaker/salt-shaker-48-244723.png",
+            "sizes": "48x48",
+            "type": "image/png"
+        },
+        {
+            "src": "/img/salt-shaker/salt-shaker-72-244723.png",
+            "sizes": "72x72",
+            "type": "image/png"
+        },
+        {
+            "src": "img/salt-shaker/salt-shaker-114-244723.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        },
+        {
+            "src": "/img/salt-shaker/salt-shaker-512-244723.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "display": "standalone",
+    "orientation": "any",
+    "background_color": "#333",
+    "theme_color": "#333",
+    "description": "A Restaurant Reviews application with offline capabilities",
+    "dir": "ltr",
+    "lang": "en-GB"
+}
