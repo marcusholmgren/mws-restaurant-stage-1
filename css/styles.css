@@ -1,5 +1,14 @@
 @charset "utf-8";
 /* CSS Document */
+:root {
+  box-sizing: border-box;
+}
+
+*,
+::before
+::after {
+  box-sizing: inherit;
+}
 
 body,td,th,p{
 	font-family: Arial, Helvetica, sans-serif;
@@ -51,12 +60,13 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 /* ====================== Navigation ====================== */
 nav {
   width: 100%;
-  height: 80px;
   background-color: #252831;
   text-align:center;
 }
 nav h1 {
   margin: auto;
+  padding-top: 1.1em;
+  padding-bottom: 1.1em;
 }
 nav h1 a {
   color: #fff;
@@ -106,7 +116,6 @@ nav h1 a {
 /* ====================== Restaurant Filtering ====================== */
 .filter-options {
   width: 100%;
-  height: 50px;
   background-color: #3397DB;
   align-items: center;
 }
@@ -116,6 +125,7 @@ nav h1 a {
   font-weight: normal;
   line-height: 1;
   margin: 0 20px;
+  padding-top: .25em;
 }
 .filter-options select {
   background-color: white;
@@ -272,4 +282,27 @@ nav h1 a {
 }
 #restaurant-hours td {
   color: #666;
+}
+
+
+@media only screen and (max-width: 320px) {
+  #restaurants-list {
+    padding: 30px 0 60px;
+  }
+  #restaurants-list li {
+    padding: 0 0 25px;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    align-content: center;
+  }
+  #restaurants-list li h1 {
+    margin-left: 10px;
+  }
+  #restaurants-list p {
+    margin-left: 10px;
+  }
+  #restaurants-list li a {
+    margin-left: 10px;
+  } 
 }
