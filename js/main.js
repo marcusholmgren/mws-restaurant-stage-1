@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
 registerServiceWorker = () => {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('serviceworker.js').then(() => {
-      console.log(`serviceWorker registration status: {onfullfilled}`);
     }).catch(() => {
       console.log('Failed to register serviceWorker.');
     });
@@ -42,12 +41,14 @@ fetchNeighborhoods = () => {
  */
 fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
   const select = document.getElementById('neighborhoods-select');
-  neighborhoods.forEach((neighborhood) => {
-    const option = document.createElement('option');
-    option.innerHTML = neighborhood;
-    option.value = neighborhood;
-    select.append(option);
-  });
+  if (select) {
+    neighborhoods.forEach((neighborhood) => {
+      const option = document.createElement('option');
+      option.innerHTML = neighborhood;
+      option.value = neighborhood;
+      select.append(option);
+    });
+  }
 };
 
 /**
@@ -69,13 +70,14 @@ fetchCuisines = () => {
  */
 fillCuisinesHTML = (cuisines = self.cuisines) => {
   const select = document.getElementById('cuisines-select');
-
-  cuisines.forEach((cuisine) => {
-    const option = document.createElement('option');
-    option.innerHTML = cuisine;
-    option.value = cuisine;
-    select.append(option);
-  });
+  if (select) {
+    cuisines.forEach((cuisine) => {
+      const option = document.createElement('option');
+      option.innerHTML = cuisine;
+      option.value = cuisine;
+      select.append(option);
+    });
+  }
 };
 
 /**

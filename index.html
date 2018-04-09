@@ -22,7 +22,7 @@
 
   <main id="maincontent">
     <section id="map-container">
-      <div id="map"></div>
+      <div id="map" role="application"></div>
     </section>
     <section>
       <div class="filter-options">
@@ -41,7 +41,13 @@
   <script type="application/javascript" charset="utf-8" src="js/dbhelper.js"></script>
   <script type="application/javascript" charset="utf-8" src="js/main.js"></script>
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUIqYCM1FzI87-jIgyNfY7EI1Ziic3nDM&libraries=places&callback=initMap"></script>
-
+  <script>
+      (function() {
+        setTimeout(() => {
+          document.querySelector('iframe').title = 'Google Maps';
+        }, 100);
+      })();
+    </script>
 
   <footer id="footer">
     Copyright (c) 2017
