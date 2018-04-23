@@ -26,6 +26,11 @@ ul, li {
 	font-size: 10pt;
 	color: #333;
 }
+ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
 a {
 	color: orange;
 	text-decoration: none;
