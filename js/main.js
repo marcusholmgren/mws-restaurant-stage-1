@@ -94,7 +94,10 @@ window.initMap = () => {
     scrollwheel: false,
   });
   updateRestaurants();
+  google.maps.event.addDomListener(window, 'load', () =>
+      document.querySelector('iframe').title = 'Google Maps');
 };
+
 
 /**
  * Update page and map for current restaurants.
