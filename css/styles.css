@@ -248,7 +248,6 @@ nav h1 a {
   border-bottom: 1px solid #d9d9d9;
   border-top: 1px solid #fff;
   padding: 3em 2em 1.5em;
-  max-width: 30em;
 }
 
 #reviews-container h2 {
@@ -269,7 +268,8 @@ nav h1 a {
   margin: 0 0 30px;
   overflow: hidden;
   position: relative;
-  width: 85%;
+  max-width: 32%;
+  min-width: 17rem;;
   display: grid;
   border-top-left-radius: 2em;
   border-bottom-right-radius: 2em;
@@ -285,6 +285,7 @@ nav h1 a {
 #reviews-list li p:nth-child(1) {
   text-indent: .5em;
   font-size: 1.3em;
+  max-height: 1.5em;
   background-color: #333;
   color: #ddd;
   grid-column: 1 / 2;
@@ -294,6 +295,7 @@ nav h1 a {
   text-align: right;
   padding-top: .9em;
   font-size: 0.9em;
+  max-height: 2.2em;
   background-color: #333;
   color: #bbb;
   grid-column: 2 / 2;
@@ -305,6 +307,7 @@ nav h1 a {
   text-transform: uppercase;
   /* could not constrain background to text content? uggly max-width hack */
   max-width: 5em;
+  max-height: 1.5em;
   display: block;
   margin-left: 1em;
   background-color: #f58500;
@@ -374,5 +377,40 @@ nav h1 a {
   } 
   #reviews-list li {
     width: 100%;
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  section#restaurant-container {
+    display: grid;
+    grid-template-columns: minmax(100px, 900px) auto;
+  }
+
+  #restaurant-name {
+    grid-row: 1;
+    grid-column: auto;
+  }
+
+  #restaurant-img {
+    grid-row: 2 / span 3;
+    grid-column: 1 / 2;
+  }
+
+  #restaurant-cuisine {
+    grid-row: 5;
+    grid-column: 1 / 2;
+    height: 1.6em;
+    margin-top: 0.2em;
+  }
+
+  #restaurant-address {
+    grid-row: 2;
+    grid-column: 2 / 3;
+  }
+
+  #restaurant-hours {
+    grid-row: 3;
+    grid-column: 2 / 3;
+    max-width: 20em;
   }
 }
