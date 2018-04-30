@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   registerServiceWorker();
   fetchNeighborhoods();
   fetchCuisines();
+  scrollMaincontentIntoViewOnSkipContent();
 });
 
 registerServiceWorker = () => {
@@ -20,6 +21,15 @@ registerServiceWorker = () => {
       console.log('Failed to register serviceWorker.');
     });
   }
+};
+
+scrollMaincontentIntoViewOnSkipContent = () => {
+  document.querySelector('#skiptocontent > a').addEventListener(
+    'click', (event) => {
+      setTimeout(() => {
+        document.getElementById('maincontent').scrollIntoView();
+      }, 10);
+  });
 };
 
 /**
