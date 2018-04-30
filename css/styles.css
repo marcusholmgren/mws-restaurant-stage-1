@@ -16,7 +16,7 @@ th,
 p {
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 10pt;
-	color: #333;
+  color: #333;
 	line-height: 1.5;
 }
 body {
@@ -76,7 +76,7 @@ section {
 }
 #footer {
   background-color: #444;
-  color: #aaa;
+  color: #d0cdcd;
   font-size: 8pt;
   letter-spacing: 1px;
   padding: 25px;
@@ -125,7 +125,7 @@ nav h1 a {
 
 /* Add a color to all links inside the list */
 #breadcrumb li a {
-    color: #0275d8;
+    color: #0360b1;
     text-decoration: none;
 }
 
@@ -143,7 +143,7 @@ nav h1 a {
 /* ====================== Restaurant Filtering ====================== */
 .filter-options {
   width: 100%;
-  background-color: #3397DB;
+  background-color: #1378bb;
   align-items: center;
 }
 .filter-options h2 {
@@ -168,15 +168,16 @@ nav h1 a {
 
 /* ====================== Restaurant Listing ====================== */
 #restaurants-list {
-  background-color: #f3f3f3;
+ background-color: #f3f3f3;
   list-style: outside none none;
   margin: 0;
   padding: 30px 15px 60px;
   text-align: center;
 }
 #restaurants-list li {
-  background-color: #fff;
+  background-color:  #fff;
   border: 2px solid #ccc;
+  border-radius: 0.5em;
   font-family: Arial,sans-serif;
   margin: 15px;
   min-height: 380px;
@@ -191,6 +192,8 @@ nav h1 a {
   max-width: 100%;
   min-height: 248px;
   min-width: 100%;
+  border-bottom-left-radius: 2em;
+  border-bottom-right-radius: 2em;
 }
 #restaurants-list li h2 {
   color: #f18200;
@@ -294,6 +297,8 @@ nav h1 a {
   max-width: 32%;
   min-width: 17rem;;
   display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto 1fr;
   border-top-left-radius: 2em;
   border-bottom-right-radius: 2em;
 }
@@ -302,7 +307,7 @@ nav h1 a {
   padding: .5em 1em;
 }
 #restaurant-hours td {
-  color: #666;
+  color: #525252;
 }
 
 #reviews-list li p:nth-child(1) {
@@ -326,7 +331,7 @@ nav h1 a {
 
 
 #reviews-list li p:nth-child(3) {
-  color: #fff;
+  color: #420202;
   text-transform: uppercase;
   /* could not constrain background to text content? uggly max-width hack */
   max-width: 5em;
@@ -335,12 +340,12 @@ nav h1 a {
   margin-left: 1em;
   background-color: #f58500;
   border-radius: 4px;
-  grid-column: 1;
+  grid-column: 1 / span 2;
   grid-row: 2;
 }
 
 #reviews-list li p:nth-child(4) {
-  grid-column: span 2;
+  grid-column: 1 / span 2;
   grid-row: 3;
 }
 

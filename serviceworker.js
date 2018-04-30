@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mws-restaurant-v5';
+const CACHE_NAME = 'mws-restaurant-v6';
 const CACHE_GOOGLE_MAPS = 'GOOGLE_MAPS_CACHE';
 
 self.addEventListener('install', (event) => {
