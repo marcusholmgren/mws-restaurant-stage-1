@@ -108,6 +108,7 @@ nav h1 a {
     font-size: 17px;
     margin: 0;
     text-align: initial;
+    justify-content: start;
 }
 
 /* Display list items side by side */
