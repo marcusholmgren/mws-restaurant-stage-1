@@ -104,8 +104,12 @@ window.initMap = () => {
     scrollwheel: false,
   });
   updateRestaurants();
-  google.maps.event.addDomListener(window, 'load', () =>
-      document.querySelector('iframe').title = 'Google Maps');
+  google.maps.event.addDomListener(window, 'load', () => {
+      const mapsTarget = document.querySelector('iframe');
+      if (mapsTarget) {
+        mapsTarget.title = 'Google Maps';
+      }
+  });
 };
 
 
