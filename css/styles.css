@@ -368,6 +368,25 @@ nav h1 a {
     transition: top .1s ease-in;
 }
 
+@media screen and (orientation: landscape) {
+  #map {
+    height: 55vh;
+  }
+  .inside #map-container {
+    height: 35vh;
+  }
+  
+}
+
+@media screen and (orientation: portrait) {
+  #map {
+    height: 60vh;
+  }
+  .inside #map-container {
+    height: 30vh;
+  }
+}
+
 @media only screen and (max-width: 360px) {
   #restaurants-list {
     padding: 30px 0 60px;
