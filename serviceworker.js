@@ -13,6 +13,8 @@ self.addEventListener('install', (event) => {
                 '/js/restaurant_info.js',
                 '/data/restaurants.json',
             ]);
+        }).then(() => {
+            return self.skipWaiting();
         })
     );
 });
@@ -32,6 +34,7 @@ self.addEventListener('activate', (event) => {
             );
         })
     );
+    return self.clients.claim();
 });
 
 
