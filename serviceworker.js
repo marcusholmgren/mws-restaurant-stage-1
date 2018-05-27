@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mws-restaurant-v7';
+const CACHE_NAME = 'mws-restaurant-v8';
 const CACHE_GOOGLE_MAPS = 'GOOGLE_MAPS_CACHE';
 
 self.addEventListener('install', (event) => {
@@ -11,7 +11,6 @@ self.addEventListener('install', (event) => {
                 '/js/dbhelper.js',
                 '/js/main.js',
                 '/js/restaurant_info.js',
-                '/data/restaurants.json',
             ]);
         }).then(() => {
             return self.skipWaiting();
@@ -37,34 +36,31 @@ self.addEventListener('activate', (event) => {
     return self.clients.claim();
 });
 
+const cachedResponse = (cache, request) => {
+    return cache.match(request).then((cachedResponse) => {
+        return cachedResponse || fetch(request).then((networkResponse) => {
+            cache.put(request, networkResponse.clone());
+            return networkResponse;
+        });
+    });
+};
 
 self.addEventListener('fetch', (event) => {
+    // Let the browser do its default thing
+    // for non-GET requests.
+    if (event.request.method != 'GET') return;
+
     const requestURL = new URL(event.request.url);
     const indexHtml = '/index.html';
     if (requestURL.pathname === '/' || requestURL.pathname === indexHtml) {
-        event.respondWith(
-            caches.open(CACHE_NAME).then((cache) => {
-                return cache.match(indexHtml).then((cachedResponse) => {
-                    const fetchResponse = fetch(indexHtml).then((networkResponse) => {
-                        cache.put(indexHtml, networkResponse.clone());
-                        return networkResponse;
-                    });
-                    return cachedResponse || fetchResponse;
-                });
+        event.respondWith(caches.open(CACHE_NAME).then((cache) => {
+                return cachedResponse(cache, indexHtml);
             })
         );
     // Google maps API request caching
-    } else if (requestURL.href.startsWith('https://maps.googleapis.com') ||
-               requestURL.href.startsWith('https://maps.gstatic.com' ||
-               requestURL.href.startsWith('https://fonts.gstatic.com'))) {
+    } else if (requestURL.href.match(String.raw `^https://(maps|fonts)\.(googleapis|gstatic)\.com`)) {
         event.respondWith(caches.open(CACHE_GOOGLE_MAPS).then((cache) => {
-            return cache.match(event.request).then((cachedResponse) => {
-                    const fetchResponse = fetch(event.request).then((networkResponse) => {
-                        cache.put(event.request, networkResponse.clone());
-                        return networkResponse;
-                    });
-                    return cachedResponse || fetchResponse;
-                });
+                return cachedResponse(cache, event.request);
             }).catch(() => {
                 console.log('Failed to load google maps URL:', requestURL);
             })
