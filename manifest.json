@@ -1,6 +1,6 @@
 {
     "name": "Restaurant Reviews Progressive Web App",
-    "short_name": "Restaurant Reviews",
+    "short_name": "Restaurants",
     "start_url": "/index.html",
     "scope": ".",
     "icons": [
