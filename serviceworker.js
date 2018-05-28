@@ -1,4 +1,6 @@
-const CACHE_NAME = 'mws-restaurant-v8';
+importScripts('/js/dbhelper.js');
+
+const CACHE_NAME = 'mws-restaurant-v9';
 const CACHE_GOOGLE_MAPS = 'GOOGLE_MAPS_CACHE';
 
 self.addEventListener('install', (event) => {
@@ -12,6 +14,8 @@ self.addEventListener('install', (event) => {
                 '/js/main.js',
                 '/js/restaurant_info.js',
             ]);
+        }).then(() => {
+            DBHelper.populateRestaurants();
         }).then(() => {
             return self.skipWaiting();
         })
@@ -65,6 +69,8 @@ self.addEventListener('fetch', (event) => {
                 console.log('Failed to load google maps URL:', requestURL);
             })
         );
+    } else if (requestURL.href.match(String.raw `^http[s]?://.*/restaurants/?(\d+)?`)) {
+        return;
     } else {
         event.respondWith(
             caches.open(CACHE_NAME).then((cache) => {
