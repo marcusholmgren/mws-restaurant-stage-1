@@ -1,5 +1,4 @@
-let restaurant;
-var map;
+// globals restaurant & map;
 
 /**
  * Initialize Google map, called from HTML.
@@ -29,6 +28,7 @@ window.initMap = () => {
 
 /**
  * Get current restaurant from page URL.
+ * @param {function(string, object)} callback
  */
 fetchRestaurantFromURL = (callback) => {
   if (self.restaurant) { // restaurant already fetched!
@@ -54,6 +54,7 @@ fetchRestaurantFromURL = (callback) => {
 
 /**
  * Create restaurant HTML and add it to the webpage
+ * @param {object} restaurant
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
   const name = document.getElementById('restaurant-name');
@@ -80,6 +81,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 
 /**
  * Create restaurant operating hours HTML table and add it to the webpage.
+ * @param {object[]} operatingHours
  */
 fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => {
   const hours = document.getElementById('restaurant-hours');
@@ -100,6 +102,7 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 
 /**
  * Create all reviews HTML and add them to the webpage.
+ * @param {object[]} reviews
  */
 fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   const container = document.getElementById('reviews-container');
@@ -122,6 +125,8 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
 
 /**
  * Create review HTML and add it to the webpage.
+ * @param {object} review
+ * @return {HTMLLIElement} list item
  */
 createReviewHTML = (review) => {
   const li = document.createElement('li');
@@ -146,6 +151,7 @@ createReviewHTML = (review) => {
 
 /**
  * Add restaurant name to the breadcrumb navigation menu
+ * @param {object} restaurant
  */
 fillBreadcrumb = (restaurant = self.restaurant) => {
   const breadcrumb = document.getElementById('breadcrumb');
@@ -157,16 +163,22 @@ fillBreadcrumb = (restaurant = self.restaurant) => {
 
 /**
  * Get a parameter by name from page URL.
+ * @param {string} name
+ * @param {string} url
+ * @return {string} name parameter
  */
 getParameterByName = (name, url) => {
-  if (!url)
+  if (!url) {
     url = window.location.href;
+  }
   name = name.replace(/[\[\]]/g, '\\$&');
-  const regex = new RegExp(`[?&]${name}(=([^&#]*)|&|#|$)`),
-    results = regex.exec(url);
-  if (!results)
+  const regex = new RegExp(`[?&]${name}(=([^&#]*)|&|#|$)`);
+  const results = regex.exec(url);
+  if (!results) {
     return null;
-  if (!results[2])
+  }
+  if (!results[2]) {
     return '';
+  }
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 };

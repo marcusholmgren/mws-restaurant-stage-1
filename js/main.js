@@ -1,8 +1,5 @@
-let restaurants,
-  neighborhoods,
-  cuisines;
-var map;
-var markers = [];
+// globals restaurants, neighborhoods, cuisines & map;
+self.markers = [];
 
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
@@ -17,8 +14,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
 registerServiceWorker = () => {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('serviceworker.js').then(() => {
-    }).catch(() => {
-      console.log('Failed to register serviceWorker.');
+    }).catch((error) => {
+      console.log('Failed to register serviceWorker.', error);
     });
   }
 };
@@ -48,6 +45,7 @@ fetchNeighborhoods = () => {
 
 /**
  * Set neighborhoods HTML.
+ * @param {object[]} neighborhoods
  */
 fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
   const select = document.getElementById('neighborhoods-select');
@@ -77,6 +75,7 @@ fetchCuisines = () => {
 
 /**
  * Set cuisines HTML.
+ * @param {object} cuisines
  */
 fillCuisinesHTML = (cuisines = self.cuisines) => {
   const select = document.getElementById('cuisines-select');
@@ -126,7 +125,8 @@ updateRestaurants = () => {
   const cuisine = cSelect[cIndex].value;
   const neighborhood = nSelect[nIndex].value;
 
-  DBHelper.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, (error, restaurants) => {
+  DBHelper.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood,
+    (error, restaurants) => {
     if (error) { // Got an error!
       console.error(error);
     } else {
@@ -138,6 +138,7 @@ updateRestaurants = () => {
 
 /**
  * Clear current restaurants, their HTML and remove their map markers.
+ * @param {object[]} restaurants
  */
 resetRestaurants = (restaurants) => {
   // Remove all restaurants
@@ -153,6 +154,7 @@ resetRestaurants = (restaurants) => {
 
 /**
  * Create all restaurants HTML and add them to the webpage.
+ * @param {object[]} restaurants
  */
 fillRestaurantsHTML = (restaurants = self.restaurants) => {
   const ul = document.getElementById('restaurants-list');
@@ -164,6 +166,8 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
 
 /**
  * Create restaurant HTML.
+ * @param {object} restaurant
+ * @return {HTMLLIElement} list item
  */
 createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
@@ -196,6 +200,7 @@ createRestaurantHTML = (restaurant) => {
 
 /**
  * Add markers for current restaurants to the map.
+ * @param {object[]} restaurants
  */
 addMarkersToMap = (restaurants = self.restaurants) => {
   restaurants.forEach((restaurant) => {
