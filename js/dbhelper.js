@@ -102,7 +102,7 @@ class DBHelper {
 
   /**
    * Gets all restaurants from the IndexedDB Object Store.
-   * @param {*} successCallback - Array of resturant objects.
+   * @param {*} successCallback Array of resturant objects.
    */
   static getAllRestaurants(successCallback) {
     DBHelper.openObjectStore('restaurants', (store) => {
@@ -111,6 +111,29 @@ class DBHelper {
           let restaurants = event.target.result;
           successCallback(restaurants);
         };
+    });
+  }
+
+
+  /**
+   * Gets all restaurants that matches provided predicate.
+   * @param {*} predicat Restaurant boolean expression
+   * @param {*} successCallback Array of restaurant objects.
+   */
+  static getAllRestaurantsLike(predicat, successCallback) {
+    DBHelper.openObjectStore('restaurants', (store) => {
+      let restaurants = [];
+      store.openCursor().onsuccess = (event) => {
+        let cursor = event.target.result;
+        if (cursor) {
+          if (predicat(cursor.value)) {
+            restaurants.push(cursor.value);
+          }
+          cursor.continue();
+        } else {
+          successCallback(restaurants);
+        }
+      };
     });
   }
 
@@ -130,15 +153,15 @@ class DBHelper {
    */
   static populateRestaurants(callback = undefined) {
     fetch(DBHelper.DATABASE_URL, {'accept': 'application/json; charset=utf-8'})
-    .then((res) => res.json()).then((restaurants) => {
+      .then((res) => res.json()).then((restaurants) => {
         DBHelper.clearAllRestaurants();
         for (let r of restaurants) {
-            DBHelper.addToRestaurantsStore(r);
+          DBHelper.addToRestaurantsStore(r);
         }
         if (callback) {
           callback(restaurants);
         }
-    });
+      });
   }
 
   /**
@@ -215,7 +238,7 @@ class DBHelper {
       } else {
         // Filter restaurants to have only given neighborhood
         const results = restaurants
-                          .filter((r) => r.neighborhood === neighborhood);
+          .filter((r) => r.neighborhood === neighborhood);
         callback(null, results);
       }
     });
@@ -234,14 +257,22 @@ class DBHelper {
       if (error) {
         callback(error, null);
       } else {
-        let results = restaurants;
-        if (cuisine != 'all') { // filter by cuisine
-          results = results.filter((r) => r.cuisine_type === cuisine);
-        }
-        if (neighborhood != 'all') { // filter by neighborhood
-          results = results.filter((r) => r.neighborhood === neighborhood);
-        }
-        callback(null, results);
+        const filterCuisine = cuisine !== 'all';
+        const cuisinePredicat = (r) => r.cuisine_type === cuisine;
+        const filterNeighborhood = neighborhood !== 'all';
+        const neighborhoodPredicat = (r) => r.neighborhood === neighborhood;
+
+        DBHelper.getAllRestaurantsLike((r) => {
+          if (filterCuisine && filterNeighborhood) {
+            return cuisinePredicat(r) && neighborhoodPredicat(r);
+          } else if (filterCuisine) {
+            return cuisinePredicat(r);
+          } else if (filterNeighborhood) {
+            return neighborhoodPredicat(r);
+          } else {
+            return (r) => true;
+          }
+        }, (restaurants) => callback(null, restaurants));
       }
     });
   }
