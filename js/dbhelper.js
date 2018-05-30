@@ -208,43 +208,6 @@ class DBHelper {
   }
 
   /**
-   * Fetch restaurants by a cuisine type with proper error handling.
-   * @param {string} cuisine
-   * @param {function} callback
-   */
-  static fetchRestaurantByCuisine(cuisine, callback) {
-    // Fetch all restaurants  with proper error handling
-    DBHelper.fetchRestaurants((error, restaurants) => {
-      if (error) {
-        callback(error, null);
-      } else {
-        // Filter restaurants to have only given cuisine type
-        const results = restaurants.filter((r) => r.cuisine_type === cuisine);
-        callback(null, results);
-      }
-    });
-  }
-
-  /**
-   * Fetch restaurants by a neighborhood with proper error handling.
-   * @param {string} neighborhood
-   * @param {function} callback
-   */
-  static fetchRestaurantByNeighborhood(neighborhood, callback) {
-    // Fetch all restaurants
-    DBHelper.fetchRestaurants((error, restaurants) => {
-      if (error) {
-        callback(error, null);
-      } else {
-        // Filter restaurants to have only given neighborhood
-        const results = restaurants
-          .filter((r) => r.neighborhood === neighborhood);
-        callback(null, results);
-      }
-    });
-  }
-
-  /**
    * Fetch restaurants by a cuisine and a neighborhood
    * with proper error handling.
    * @param {string} cuisine
