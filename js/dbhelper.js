@@ -152,7 +152,7 @@ class DBHelper {
    * @param {function} callback - function to call on error or success.
    */
   static populateRestaurants(callback = undefined) {
-    fetch(DBHelper.DATABASE_URL, {'accept': 'application/json; charset=utf-8'})
+    fetch(DBHelper.DATABASE_URL, {accept: 'application/json; charset=utf-8'})
       .then((res) => res.json()).then((restaurants) => {
         DBHelper.clearAllRestaurants();
         for (let r of restaurants) {
