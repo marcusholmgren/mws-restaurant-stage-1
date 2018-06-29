@@ -2,69 +2,100 @@
  * Common database helper functions.
  */
 class DBHelper {
-
   /**
    * Opens MWS restaurant IndexedDB.
-   * @return {IDBOpenDBRequest} indexedDB request.
+   * @return {Promise<IDBDatabase>} indexedDB request.
    */
   static openDatabase() {
-    if (!self.indexedDB) {
-      console.log('IndexedDB is not supported');
-      return false;
-    }
-
-    const DB_VERSION = 1;
-    const DB_NAME = 'mws-restaurant';
-    let request = self.indexedDB.open(DB_NAME, DB_VERSION);
-
-    request.onerror = (event) => {
-      console.log('Database error: ', event.target.error);
-    };
-
-    request.onupgradeneeded = (event) => {
-      let db = event.target.result;
-      if (!db.objectStoreNames.contains('restaurants')) {
-        db.createObjectStore('restaurants',
-          {keyPath: 'id'}
-        );
+    return new Promise((resolve, reject) => {
+      if (!self.indexedDB) {
+        reject('IndexedDB is not supported');
       }
-    };
+      const DB_VERSION = 2;
+      const DB_NAME = 'mws-restaurant';
+      let request = self.indexedDB.open(DB_NAME, DB_VERSION);
 
-    return request;
+      request.onerror = (event) => {
+        reject('Database error: ', event.target.error);
+      };
+
+      request.onupgradeneeded = (event) => {
+        let db = event.target.result;
+        if (!db.objectStoreNames.contains('restaurants')) {
+          db.createObjectStore('restaurants',
+            {keyPath: 'id'}
+          );
+        }
+        if (!db.objectStoreNames.contains('dispatch-queue')) {
+          db.createObjectStore('dispatch-queue',
+            {autoIncrement: true}
+          );
+        }
+      };
+
+      request.onsuccess = (event) => {
+        resolve(event.target.result);
+      };
+    });
   }
 
   /**
    * Open IndexedDB Object Store
+   * @param {IDBDatabase} db
    * @param {string} storeName
-   * @param {function(IDBObjectStore)} successCallback
-   * @param {string} transactionMode - default readonly, readwrite for changes.
-   * @return {boolean} True if IndexedDB was succesfully opened.
+   * @param {IDBTransactionMode} transactionMode
+   * @return {IDBObjectStore} store
    */
-  static openObjectStore(storeName, successCallback, transactionMode) {
-    let dbRequest = DBHelper.openDatabase();
-    if (!dbRequest) {
-      return false;
-    }
-
-    dbRequest.onsuccess = (event) => {
-      let db = event.target.result;
-      let objectStore = db.transaction(storeName, transactionMode)
-        .objectStore(storeName);
-      successCallback(objectStore);
-    };
-    return true;
-  }
+  static openObjectStore(db, storeName, transactionMode) {
+    return db
+      .transaction(storeName, transactionMode)
+      .objectStore(storeName);
+  };
 
   /**
    * Add object to IndexedDB Object Store
    * @param {string} storeName
-   * @param {any} object to store.
+   * @param {object} object
+   * @return {Promise}
    */
   static addToObjectStore(storeName, object) {
-    DBHelper.openObjectStore(storeName, (store) => {
-      store.add(object);
-    }, 'readwrite');
-  }
+    return new Promise((resolve, reject) => {
+      DBHelper.openDatabase().then((db) => {
+        DBHelper.openObjectStore(db, storeName, 'readwrite')
+          .add(object).onsuccess = resolve;
+      }).catch((errorMessage) => {
+        reject(errorMessage);
+      });
+    });
+  };
+
+  /**
+   * Update object in IndexedBD Object Store
+   * @param {string} storeName
+   * @param {Number} id
+   * @param {object} object
+   * @return {Promise}
+   */
+  static updateInObjectStore(storeName, id, object) {
+    return new Promise((resolve, reject) => {
+      DBHelper.openDatabase().then((db) => {
+        DBHelper.openObjectStore(db, storeName, 'readwrite')
+          .openCursor().onsuccess = (event) => {
+            let cursor = event.target.result;
+            if (!cursor) {
+              reject('Restaurant not found in object store');
+            }
+            if (cursor.value.id === id) {
+              cursor.update(object).onsuccess = resolve;
+              return;
+            }
+            cursor.continue();
+          };
+      }).catch((errorMessage) => {
+        reject(errorMessage);
+      });
+    });
+  };
 
   /**
    * Add restaurant to IndexedDB Object Store
@@ -79,38 +110,44 @@ class DBHelper {
    * Clear restaurants of all data.
    */
   static clearAllRestaurants() {
-    DBHelper.openObjectStore('restaurants', (store) => {
-      store.clear();
-    }, 'readwrite');
+    DBHelper.openDatabase().then((db) => {
+      DBHelper.openObjectStore(db, 'restaurants', 'readwrite').clear();
+    });
   }
 
   /**
    * Get restaurant by identity from IndexedDB Object Store.
    * @param {number} id Restaurant identity.
-   * @param {*} successCallback The specified restaurant object.
+   * @return {Promise} The specified restaurant object.
    */
-  static getRestaurantById(id, successCallback) {
-    const restaurantId = Number.isInteger(id) ? id : Number.parseInt(id);
-    DBHelper.openObjectStore('restaurants', (store) => {
-      store.get(restaurantId)
-        .onsuccess = (event) => {
-          let restaurant = event.target.result;
-          successCallback(restaurant);
-        };
+  static getRestaurantById(id) {
+    return new Promise((resolve, reject) => {
+      DBHelper.openDatabase().then((db) => {
+        const restaurantId = Number.isInteger(id) ? id : Number.parseInt(id);
+        DBHelper.openObjectStore(db, 'restaurants')
+          .get(restaurantId)
+          .onsuccess = (event) => {
+            let restaurant = event.target.result;
+            resolve(restaurant);
+          };
+      });
     });
   }
 
   /**
    * Gets all restaurants from the IndexedDB Object Store.
-   * @param {*} successCallback Array of resturant objects.
+   * @return {Promise<Array>} Restaurants
    */
-  static getAllRestaurants(successCallback) {
-    DBHelper.openObjectStore('restaurants', (store) => {
-      store.getAll()
-        .onsuccess = (event) => {
+  static getAllRestaurants() {
+    return new Promise((resolve, reject) => {
+      DBHelper.openDatabase().then((db) => {
+        const request = DBHelper.openObjectStore(db, 'restaurants').getAll();
+        request.onsuccess = (event) => {
           let restaurants = event.target.result;
-          successCallback(restaurants);
+          resolve(restaurants);
         };
+        request.onerror = reject;
+      });
     });
   }
 
@@ -118,22 +155,26 @@ class DBHelper {
   /**
    * Gets all restaurants that matches provided predicate.
    * @param {*} predicat Restaurant boolean expression
-   * @param {*} successCallback Array of restaurant objects.
+   * @return {Promise<Array>} Restaurants
    */
-  static getAllRestaurantsLike(predicat, successCallback) {
-    DBHelper.openObjectStore('restaurants', (store) => {
-      let restaurants = [];
-      store.openCursor().onsuccess = (event) => {
-        let cursor = event.target.result;
-        if (cursor) {
-          if (predicat(cursor.value)) {
-            restaurants.push(cursor.value);
+  static getAllRestaurantsLike(predicat) {
+    return new Promise((resolve, reject) => {
+      DBHelper.openDatabase().then((db) => {
+        let restaurants = [];
+        let request = DBHelper.openObjectStore(db, 'restaurants').openCursor();
+        request.onsuccess = (event) => {
+          let cursor = event.target.result;
+          if (cursor) {
+            if (predicat(cursor.value)) {
+              restaurants.push(cursor.value);
+            }
+            cursor.continue();
+          } else {
+            resolve(restaurants);
           }
-          cursor.continue();
-        } else {
-          successCallback(restaurants);
-        }
-      };
+        };
+        request.onerror = (event) => reject(event);
+      });
     });
   }
 
@@ -149,33 +190,30 @@ class DBHelper {
 
   /**
    * Fetch restaurants and add data in IndexedDB.
-   * @param {function} callback - function to call on error or success.
+   * @return {Promise<Array>} Restaurants
    */
-  static populateRestaurants(callback = undefined) {
-    fetch(DBHelper.DATABASE_URL, {accept: 'application/json; charset=utf-8'})
+  static populateRestaurants() {
+    return fetch(DBHelper.DATABASE_URL,
+      {accept: 'application/json; charset=utf-8'})
       .then((res) => res.json()).then((restaurants) => {
         DBHelper.clearAllRestaurants();
         for (let r of restaurants) {
           DBHelper.addToRestaurantsStore(r);
         }
-        if (callback) {
-          callback(restaurants);
-        }
+        return restaurants;
       });
   }
 
   /**
  * Fetch all restaurants.
- * @param {function} callback - function to call on error or success.
+ * @return {Promise<Array>} Restaurants
  */
-  static fetchRestaurants(callback) {
-    DBHelper.getAllRestaurants((restaurants) => {
+  static fetchRestaurants() {
+    return DBHelper.getAllRestaurants().then((restaurants) => {
       if (restaurants.length > 0) {
-        callback(null, restaurants);
+        return restaurants;
       } else {
-        DBHelper.populateRestaurants((restaurants) => {
-          callback(null, restaurants);
-        });
+        return DBHelper.populateRestaurants();
       }
     });
   }
@@ -183,27 +221,25 @@ class DBHelper {
   /**
    * Fetch a restaurant by its ID.
    * @param {number} id
-   * @param {function} callback
+   * @return {Promise} Restaurant
    */
-  static fetchRestaurantById(id, callback) {
-    DBHelper.getRestaurantById(id, (restaurantData) => {
-      if (restaurantData) {
-        callback(null, restaurantData);
-      } else {
-        // fetch all restaurants with proper error handling.
-        DBHelper.fetchRestaurants((error, restaurants) => {
-          if (error) {
-            callback(error, null);
-          } else {
-            const restaurant = restaurants.find((r) => r.id === id);
+  static fetchRestaurantById(id) {
+    return new Promise((resolve, reject) => {
+      const restaurantId = Number.isInteger(id) ? id : Number.parseInt(id);
+      DBHelper.getRestaurantById(restaurantId).then((restaurant) => {
+        if (restaurant) {
+          resolve(restaurant);
+        } else {
+          DBHelper.fetchRestaurants().then((restaurants) => {
+            const restaurant = restaurants.find((r) => r.id === restaurantId);
             if (restaurant) { // Got the restaurant
-              callback(null, restaurant);
+              resolve(restaurant);
             } else { // Restaurant does not exist in the database
-              callback('Restaurant does not exist', null);
+              reject(`Restaurant does not exist. id: ${id}`);
             }
-          }
-        });
-      }
+          });
+        }
+      });
     });
   }
 
@@ -212,69 +248,59 @@ class DBHelper {
    * with proper error handling.
    * @param {string} cuisine
    * @param {string} neighborhood
-   * @param {function} callback
+   * @return {Promise<Array>} Restaurants
    */
-  static fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, callback) {
-    // Fetch all restaurants
-    DBHelper.fetchRestaurants((error, restaurants) => {
-      if (error) {
-        callback(error, null);
-      } else {
-        const filterCuisine = cuisine !== 'all';
-        const cuisinePredicat = (r) => r.cuisine_type === cuisine;
-        const filterNeighborhood = neighborhood !== 'all';
-        const neighborhoodPredicat = (r) => r.neighborhood === neighborhood;
+  static fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood) {
+    return DBHelper.fetchRestaurants().then((restaurants) => {
+      const filterCuisine = cuisine !== 'all';
+      const cuisinePredicat = (r) => r.cuisine_type === cuisine;
+      const filterNeighborhood = neighborhood !== 'all';
+      const neighborhoodPredicat = (r) => r.neighborhood === neighborhood;
 
-        DBHelper.getAllRestaurantsLike((r) => {
-          if (filterCuisine && filterNeighborhood) {
-            return cuisinePredicat(r) && neighborhoodPredicat(r);
-          } else if (filterCuisine) {
-            return cuisinePredicat(r);
-          } else if (filterNeighborhood) {
-            return neighborhoodPredicat(r);
-          } else {
-            return (r) => true;
-          }
-        }, (restaurants) => callback(null, restaurants));
-      }
+      return DBHelper.getAllRestaurantsLike((r) => {
+        if (filterCuisine && filterNeighborhood) {
+          return cuisinePredicat(r) && neighborhoodPredicat(r);
+        } else if (filterCuisine) {
+          return cuisinePredicat(r);
+        } else if (filterNeighborhood) {
+          return neighborhoodPredicat(r);
+        } else {
+          return (r) => true;
+        }
+      }).then((restaurants) => {
+        return restaurants;
+      });
     });
   }
 
   /**
    * Fetch all neighborhoods with proper error handling.
-   * @param {function} callback
+   * @return {Promise<string[]>} Unique neighborhoods
    */
-  static fetchNeighborhoods(callback) {
-    // Fetch all restaurants
-    DBHelper.fetchRestaurants((error, restaurants) => {
-      if (error) {
-        callback(error, null);
-      } else {
-        // Get all neighborhoods from all restaurants
-        const neighborhoods = restaurants.map((v, i) => restaurants[i].neighborhood);
-        // Remove duplicates from neighborhoods
-        const uniqueNeighborhoods = neighborhoods.filter((v, i) => neighborhoods.indexOf(v) === i);
-        callback(null, uniqueNeighborhoods);
-      }
+  static fetchNeighborhoods() {
+    return DBHelper.fetchRestaurants().then((restaurants) => {
+      // Get all neighborhoods from all restaurants
+      const neighborhoods = restaurants.map((v, i) => restaurants[i].neighborhood);
+      // Remove duplicates from neighborhoods
+      const uniqueNeighborhoods = neighborhoods.filter((v, i) => neighborhoods.indexOf(v) === i);
+      // resolve(uniqueNeighborhoods);
+      return uniqueNeighborhoods;
     });
   }
 
   /**
    * Fetch all cuisines with proper error handling.
-   * @param {function} callback
+   * @return {Promise<string[]>} Unique cuisines
    */
-  static fetchCuisines(callback) {
-    // Fetch all restaurants
-    DBHelper.fetchRestaurants((error, restaurants) => {
-      if (error) {
-        callback(error, null);
-      } else {
+  static fetchCuisines() {
+    return new Promise((resolve, reject) => {
+      DBHelper.fetchRestaurants().then((restaurants) => {
         // Get all cuisines from all restaurants
         const cuisines = restaurants.map((v, i) => restaurants[i].cuisine_type);
         // Remove duplicates from cuisines
         const uniqueCuisines = cuisines.filter((v, i) => cuisines.indexOf(v) === i);
-        callback(null, uniqueCuisines);
-      }
+        resolve(uniqueCuisines);
+      });
     });
   }
 
@@ -300,6 +326,17 @@ class DBHelper {
     let photograph = restaurant.photograph.endsWith('.jpg') ?
       restaurant.photograph : `${restaurant.photograph}.jpg`;
     return `/img/${photograph}`;
+  }
+
+  /**
+   * URL for making restaurant favorite, through PUT request.
+   * @param {object} restaurant
+   * @return {string} Restaurant favorite URL.
+   */
+  static urlToogleRestaurantFavorite(restaurant) {
+    const baseUrl = this.urlForRestaurant(restaurant);
+    const favorite = restaurant.is_favorite === false ? 'true' : 'false';
+    return `${baseUrl}/?is_favorite=${favorite}`;
   }
 
   /**
