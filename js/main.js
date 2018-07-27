@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   registerServiceWorker();
   fetchNeighborhoods();
   fetchCuisines();
+  updateRestaurants();
   scrollMaincontentIntoViewOnSkipContent();
 });
 
@@ -98,7 +99,6 @@ window.initMap = () => {
     center: loc,
     scrollwheel: false,
   });
-  updateRestaurants();
   google.maps.event.addDomListener(window, 'load', () => {
       const mapsTarget = document.querySelector('iframe');
       if (mapsTarget) {

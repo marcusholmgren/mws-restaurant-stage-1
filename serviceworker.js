@@ -67,6 +67,7 @@ self.addEventListener('fetch', (event) => {
                 return cachedResponse(cache, event.request);
             }).catch(() => {
                 console.log('Failed to load google maps URL:', requestURL);
+                return new Response();
             })
         );
     } else if (requestURL.href.match(String.raw `^http[s]?://.*/restaurants/?(\d+)?`)) {
