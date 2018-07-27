@@ -115,6 +115,9 @@ updateRestaurants = () => {
   const cSelect = document.getElementById('cuisines-select');
   const nSelect = document.getElementById('neighborhoods-select');
 
+  if (!cSelect) {
+    return;
+  }
   const cIndex = cSelect.selectedIndex;
   const nIndex = nSelect.selectedIndex;
 

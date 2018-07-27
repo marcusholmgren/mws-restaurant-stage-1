@@ -1,5 +1,12 @@
 // globals restaurant & map;
 
+
+document.addEventListener('DOMContentLoaded', (event) => {
+  fetchRestaurantFromURL().then((restaurant) => {
+    fillBreadcrumb(restaurant);
+  });
+});
+
 /**
  * Initialize Google map, called from HTML.
  */
