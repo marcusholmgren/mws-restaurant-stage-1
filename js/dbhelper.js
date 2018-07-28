@@ -178,6 +178,23 @@ class DBHelper {
     });
   }
 
+
+  /**
+   * Delete command from dispatch queue IndexedDB store.
+   * @param {numeric} queueId
+   * @return {Promise}
+   */
+  static deleteFromQueue(queueId) {
+    return new Promise((resolve, reject) => {
+      DBHelper.openDatabase().then((db) => {
+        const store = DBHelper.openObjectStore(db, 'dispatch-queue', 'readwrite');
+        store.delete(queueId);
+        store.onerror = (error) => reject(error);
+        store.onsuccess = () => resolve();
+      });
+    });
+  }
+
   /**
    * Database URL.
    * Change this to restaurants.json file location on your server.
@@ -306,11 +323,11 @@ class DBHelper {
 
   /**
    * Restaurant page URL.
-   * @param {object} restaurant
+   * @param {number} id Restaurant identity
    * @return {string} Restaurant details URL
    */
-  static urlForRestaurant(restaurant) {
-    return (`./restaurant.html?id=${restaurant.id}`);
+  static urlForRestaurant({id}) {
+    return (`./restaurant.html?id=${id}`);
   }
 
   /**
@@ -330,13 +347,16 @@ class DBHelper {
 
   /**
    * URL for making restaurant favorite, through PUT request.
-   * @param {object} restaurant
+   * @param {number} id Restaurant identity
+   * @param {boolean} is_favorite True for favorite restaurant
    * @return {string} Restaurant favorite URL.
    */
-  static urlToogleRestaurantFavorite(restaurant) {
-    const baseUrl = this.urlForRestaurant(restaurant);
-    const favorite = restaurant.is_favorite === false ? 'true' : 'false';
-    return `${baseUrl}/?is_favorite=${favorite}`;
+  static urlToogleRestaurantFavorite({id, is_favorite}) {
+    const baseUrl = this.DATABASE_URL;
+    if (is_favorite === undefined || is_favorite === false || is_favorite === 'false') {
+      return `${baseUrl}/${id}/?is_favorite=true`;
+    }
+    return `${baseUrl}/${id}/?is_favorite=false`;
   }
 
   /**
@@ -355,5 +375,17 @@ class DBHelper {
     }
     );
     return marker;
+  }
+
+  /**
+   * Favorite or un-favorite a restaurant
+   * @param {string} url with restaurant_id and is_favorite boolean value.
+   * @return {Promise<Response>}
+   */
+  static toggleFavorite(url) {
+    return fetch(url, {
+        method: 'PUT',
+        headers: new Headers({'content-type': 'application/json; charset=utf-8'}),
+    });
   }
 }

@@ -17,7 +17,6 @@ window.initMap = () => {
       center: restaurant.latlng,
       scrollwheel: false,
     });
-    fillBreadcrumb();
     DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
   }).catch((error) => {
     console.error('Failed to get restaurant map:', error);
@@ -64,7 +63,12 @@ fetchRestaurantFromURL = () => {
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
   const name = document.getElementById('restaurant-name');
-  name.innerHTML = restaurant.name;
+  if (restaurant.is_favorite === true || restaurant.is_favorite === 'true') {
+    const BlackStar = '&#9733;';
+    name.innerHTML = `${BlackStar} ${restaurant.name}`;
+  } else {
+    name.innerHTML = restaurant.name;
+  }
 
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;

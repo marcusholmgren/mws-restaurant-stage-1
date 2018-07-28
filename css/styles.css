@@ -462,3 +462,39 @@ nav h1 a {
     max-width: 20em;
   }
 }
+
+.rating-star {
+  font-size: xx-large;
+  display: block;
+  float: right;
+  margin-top: 0.4em;
+  background-color: transparent;
+  color: grey;
+  border-radius: 50%;
+  border-width: 0.1em;
+  border-color: white;
+}
+
+.rating-star:hover {
+  background-color: white;
+  color: orange;
+  border-color: gray;
+}
+
+.rating-star-favorite {
+  font-size: xx-large;
+  display: block;
+  float: right;
+  margin-top: 0.4em;
+  background-color: transparent;
+  color: orange;
+  border-radius: 50%;
+  border-width: 0.1em;
+  border-color: white;
+}
+
+.rating-star-favorite:hover {
+  background-color: orange;
+  color: white;
+  border-color: gray;
+}

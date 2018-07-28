@@ -1,5 +1,6 @@
 // globals restaurants, neighborhoods, cuisines & map;
 self.markers = [];
+const BlackStar = '&#9733;';
 
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
@@ -99,6 +100,9 @@ window.initMap = () => {
     center: loc,
     scrollwheel: false,
   });
+  if (self.restaurants) {
+    fillRestaurantsHTML();
+  }
   google.maps.event.addDomListener(window, 'load', () => {
       const mapsTarget = document.querySelector('iframe');
       if (mapsTarget) {
@@ -130,7 +134,7 @@ updateRestaurants = () => {
       return;
     }
     resetRestaurants(restaurants);
-    fillRestaurantsHTML();
+    fillRestaurantsHTML(restaurants);
   }).catch((event) => {
     console.error('updateRestaurants', event.message);
   });
@@ -195,7 +199,88 @@ createRestaurantHTML = (restaurant) => {
   more.href = DBHelper.urlForRestaurant(restaurant);
   li.append(more);
 
+  const favorite = document.createElement('button');
+  favorite.className = getFavoriteStarStyle(restaurant.is_favorite);
+  console.log(`Star style: ${restaurant.id} is_favorite? ${restaurant.is_favorite} (${typeof(restaurant.is_favorite)}), class: ${favorite.className}`);
+  favorite.innerHTML = BlackStar;
+  favorite.dataset['restaurantId'] = restaurant.id;
+  favorite.dataset['url'] = DBHelper.urlToogleRestaurantFavorite(restaurant);
+  li.append(favorite);
+  if ('serviceWorker' in navigator && 'SyncManager' in window) {
+    navigator.serviceWorker.getRegistration().then((registration) => {
+      registration.sync.register('toggle-favorite');
+      favorite.addEventListener('click', favoriteRestaurantSyncHandler);
+    });
+  } else {
+    console.log('register click event for non SyncManager');
+    favorite.addEventListener('click', favoriteRestaurantDirectHandler);
+  }
+
   return li;
+};
+
+
+/**
+ * Get CSS style for favorite restaurant marker.
+ * @param {boolean} isFavorite True if restaurant is favorite
+ * @return {string} CSS Style
+ */
+getFavoriteStarStyle = (isFavorite) => {
+  if (isFavorite === true || isFavorite === 'true') {
+    return 'rating-star-favorite';
+  }
+  return 'rating-star';
+};
+
+isRestaurantFavorite = (restaurant) => (restaurant.is_favorite === true || restaurant.is_favorite === 'true');
+
+
+/**
+ * Update IndexedDB restaurant object and HTML button control.
+ * @param {HTMLButtonElement} favorite
+ * @return {Promise}
+ */
+updateRestaurantAndButton = (favorite) => {
+  return new Promise((resolve, reject) => {
+    const restaurant_id = Number.parseInt(favorite.getAttribute('data-restaurant-id'));
+    DBHelper.getRestaurantById(restaurant_id).then((restaurant) => {
+      const is_favorite = !isRestaurantFavorite(restaurant);
+      const updatedRestaurant = {...restaurant, is_favorite};
+      DBHelper.updateInObjectStore('restaurants', restaurant.id, updatedRestaurant);
+  
+      const url = DBHelper.urlToogleRestaurantFavorite({id: restaurant.id, is_favorite: !is_favorite});
+      favorite.dataset['url'] = url;
+      favorite.innerHTML = BlackStar;
+      favorite.className = getFavoriteStarStyle(is_favorite);
+  
+      resolve({restaurant_id, url});
+    });
+  });
+}
+
+/**
+ * Button click handler for browsers that don't yet support SyncManager
+ * @param {MouseEvent} event
+ */
+favoriteRestaurantDirectHandler = (event) => {
+  event.preventDefault();
+  const favorite = event.target;
+  updateRestaurantAndButton(favorite).then(({restaurant_id, url}) => {
+    DBHelper.toggleFavorite(url);
+  });
+};
+
+/**
+ * Button click handler for browsers that support SyncManager.
+ * @param {MouseEvent} event
+ */
+favoriteRestaurantSyncHandler = (event) => {
+  event.preventDefault();
+  const favorite = event.target;
+  updateRestaurantAndButton(favorite).then(({restaurant_id, url}) => {
+    DBHelper.addToObjectStore('dispatch-queue',
+      {action: 'toggle-favorite', url, restaurant_id});
+  });
 };
 
 /**
