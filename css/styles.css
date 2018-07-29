@@ -498,3 +498,58 @@ nav h1 a {
   color: white;
   border-color: gray;
 }
+
+#add-review {
+  margin: 2em auto;
+  max-width: 40em;
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.2fr;
+  grid-gap: 0.5em;
+  grid-auto-rows: minmax(2.5em, auto);
+  background-color: #ffbc6d;
+  border-color: #bfbfbf;
+  border-style:solid;
+  border-radius: 1em;
+  grid-template-areas: 
+  "a a b"
+  "d c b"
+  "e e b"
+}
+
+section h3 {
+  color: #f58500;
+  margin-left: 1em;
+  font-size: 18pt;
+}
+
+#reviewer_name {
+  grid-area: a;
+  font-size: 2em;
+  margin: 0.2em 0 0 1em;
+}
+#rating {
+  grid-area: c;
+  background-color: orange;
+  /* margin: 0.2em 0 0 1em; */
+}
+#ratingsnumber {
+  grid-area: d;
+  font-size: 2em;
+  margin-left: 1em;
+}
+#comment_text {
+  grid-area: e;
+  margin: 0 0 0.2em 1em;
+}
+#add-review button {
+  grid-area: b;
+  border-color: pink;
+  border-style: none;
+  background-color: #1378bb;
+  border-radius: 0 1em 1em 0;
+}
+textarea {
+  resize: none;
+  overflow: auto;
+  font-size: 1.5em;
+}

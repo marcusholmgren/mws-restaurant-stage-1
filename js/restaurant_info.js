@@ -4,9 +4,11 @@
 document.addEventListener('DOMContentLoaded', (event) => {
   fetchRestaurantFromURL().then((restaurant) => {
     fetchRestaurantReviews(restaurant);
+    return restaurant;
   })
   .then((restaurant) => {
     fillBreadcrumb(restaurant);
+    addNewReviewsButton(restaurant);
   });
 });
 
@@ -180,6 +182,110 @@ fillBreadcrumb = (restaurant = self.restaurant) => {
   li.innerHTML = restaurant.name;
   li.setAttribute('aria-current', 'page');
   breadcrumb.appendChild(li);
+};
+
+
+/**
+ * Add restaurant review form
+ * @param {number} id Restaurant identity
+ */
+addNewReviewsButton = ({id}) => {
+  const container = document.getElementById('add-review');
+
+  const restaurant = document.createElement('input');
+  restaurant.setAttribute('type', 'hidden');
+  restaurant.setAttribute('name', 'restaurant_id');
+  restaurant.setAttribute('id', 'restaurant_id');
+  restaurant.setAttribute('value', id);
+  container.appendChild(restaurant);
+
+  const name = document.createElement('input');
+  name.setAttribute('type', 'text');
+  name.setAttribute('name', 'name');
+  name.setAttribute('id', 'reviewer_name');
+  name.setAttribute('placeholder', 'Your name');
+  name.setAttribute('required', '');
+  container.appendChild(name);
+  const rating = document.createElement('input');
+  rating.setAttribute('type', 'range');
+  rating.setAttribute('min', 1);
+  rating.setAttribute('max', 5);
+  rating.setAttribute('name', 'rating');
+  rating.setAttribute('id', 'rating');
+  rating.setAttribute('list', 'ratingslist');
+  rating.setAttribute('value', 3);
+  container.appendChild(rating);
+  const ratings = document.createElement('datalist');
+  ratings.setAttribute('id', 'ratingslist');
+  const ratings1 = document.createElement('option');
+  ratings1.setAttribute('value', 1);
+  ratings1.setAttribute('label', 1);
+  ratings.appendChild(ratings1);
+  const ratings2 = document.createElement('option');
+  ratings2.setAttribute('value', 2);
+  ratings2.setAttribute('label', 2);
+  ratings.appendChild(ratings2);
+  const ratings3 = document.createElement('option');
+  ratings3.setAttribute('value', 3);
+  ratings3.setAttribute('label', 3);
+  ratings.appendChild(ratings3);
+  const ratings4 = document.createElement('option');
+  ratings4.setAttribute('value', 4);
+  ratings4.setAttribute('label', 4);
+  ratings.appendChild(ratings4);
+  const ratings5 = document.createElement('option');
+  ratings5.setAttribute('value', 5);
+  ratings5.setAttribute('label', 5);
+  ratings.appendChild(ratings5);
+  container.appendChild(ratings);
+  const ratingsNumber = document.createElement('span');
+  ratingsNumber.innerHTML = 'Rating: 3';
+  ratingsNumber.setAttribute('id', 'ratingsnumber');
+  container.appendChild(ratingsNumber);
+  rating.addEventListener('change', (e) => {
+    ratingsNumber.innerHTML = `Rating: ${e.target.value}`;
+  });
+
+  const comments = document.createElement('textarea');
+  comments.setAttribute('wrap', 'off');
+  comments.setAttribute('cols', 30);
+  comments.setAttribute('rows', 5);
+  comments.setAttribute('name', 'comments');
+  comments.setAttribute('id', 'comment_text');
+  comments.setAttribute('placeholder', 'Write your review');
+  comments.setAttribute('required', '');
+  container.appendChild(comments);
+
+  const button = document.createElement('button');
+  button.innerHTML = 'Submit review';
+  container.appendChild(button);
+  button.addEventListener('click', postReviewDirectHandler);
+};
+
+postReviewDirectHandler = (event) => {
+  event.preventDefault();
+  const form = document.getElementById('add-review');
+  if (form.checkValidity()) {
+    const ri = document.getElementById('restaurant_id');
+    const n = document.getElementById('reviewer_name');
+    const r = document.getElementById('rating');
+    const rt = document.getElementById('comment_text');
+    const data = {
+      restaurant_id: Number.parseInt(ri.value),
+      name: n.value,
+      rating: Number.parseInt(r.value),
+      comments: rt.value};
+
+    DBHelper.postRestaurantReview(data).then((review) => {
+      const ul = document.getElementById('reviews-list');
+      ul.appendChild(createReviewHTML(review));
+      form.reset();
+      const ratingsNumber = document.getElementById('ratingsnumber');
+      ratingsNumber.innerHTML = 'Rating: 3';
+    });
+  } else {
+    form.reportValidity();
+  }
 };
 
 /**

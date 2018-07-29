@@ -466,4 +466,19 @@ class DBHelper {
       return DBHelper.getAllRestaurantReviews(restaurant.id).catch(() => []);
     });
   }
+
+  /**
+   * @param {object} review
+   * @return {Promise<object>} Review object created
+   */
+  static postRestaurantReview(review) {
+    return fetch(DBHelper.DATABASE_REVIEWS_URL, {
+      'method': 'POST',
+      'mode': 'cors',
+      'Content-Type':
+      'application/json; charset=utf-8',
+      'body': JSON.stringify(review)})
+    .then((res) => res.json())
+    .catch((e) => console.log('postRestaurantReview error', e));
+  }
 }
