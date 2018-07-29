@@ -286,9 +286,9 @@ postReviewSyncHandler = (event) => {
       rating: Number.parseInt(r.value),
       comments: rt.value};
 
-    DBHelper.addToObjectStore('dispatch-queue', data);
-    console.log('inform user about request queued successfull');
-
+    DBHelper.addToObjectStore('dispatch-queue', data).then(() => {
+      displayMessageNotification('Review queued');
+    });
     form.reset();
     const ratingsNumber = document.getElementById('ratingsnumber');
     ratingsNumber.innerHTML = 'Rating: 3';
@@ -343,4 +343,14 @@ getParameterByName = (name, url) => {
     return '';
   }
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
+};
+
+/**
+ * Display notification message in HTML document.
+ * @param {string} notificationText 
+ */
+displayMessageNotification = (notificationText) => {
+  const messageNotification = document.getElementById('notification');
+  messageNotification.innerHTML = notificationText;
+  messageNotification.className = 'notification-display';
 };

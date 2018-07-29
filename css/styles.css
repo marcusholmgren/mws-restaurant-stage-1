@@ -553,3 +553,14 @@ textarea {
   overflow: auto;
   font-size: 1.5em;
 }
+
+.notification-hide {
+  display: none;
+}
+.notification-display {
+  display: block;
+  background-color: lightblue;
+  padding: 0.5em 1em;
+  margin: 0;
+  font-size: 14pt;
+}

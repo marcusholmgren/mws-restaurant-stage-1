@@ -1,6 +1,6 @@
 importScripts('/js/dbhelper.js');
 
-const CACHE_NAME = 'mws-restaurant-v13';
+const CACHE_NAME = 'mws-restaurant-v14';
 const CACHE_GOOGLE_MAPS = 'GOOGLE_MAPS_CACHE';
 
 self.addEventListener('install', (event) => {
