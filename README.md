@@ -31,3 +31,9 @@ The frontend server is configured and expecting the backend serve to be reachabl
 ### Note about ES6
 
 Most of the code in this project has been written to the ES6 JavaScript specification for compatibility with modern web browsers and future proofing JavaScript code. As much as possible, try to maintain use of ES6 in any additional JavaScript you write. 
+
+
+## Lighthouse Audit Report
+
+![index lighthouse audit](/img/mws-index-2018-07-29.png "index.html")
+![restaurant lighthouse audit](/img/mws-restaurant-2018-07-29.png "restaurant.html")
