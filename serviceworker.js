@@ -1,6 +1,6 @@
 importScripts('/js/dbhelper.js');
 
-const CACHE_NAME = 'mws-restaurant-v12';
+const CACHE_NAME = 'mws-restaurant-v13';
 const CACHE_GOOGLE_MAPS = 'GOOGLE_MAPS_CACHE';
 
 self.addEventListener('install', (event) => {
@@ -94,7 +94,7 @@ self.addEventListener('fetch', (event) => {
 
 self.addEventListener('sync', (event) => {
     console.log('sync event-tag: ', event.tag);
-    processDispatchQueue();
+    event.waitUntil(processDispatchQueue());
 });
 
 /**
@@ -104,14 +104,28 @@ function processDispatchQueue() {
     DBHelper.openDatabase().then((db) => {
         let store = DBHelper.openObjectStore(db, 'dispatch-queue');
         store.getAllKeys().onsuccess = (event) => {
-            for (const queueId of event.target.result) {
-                store.get(queueId).onsuccess = (e) => {
+            for (const id of event.target.result) {
+                store.get(id).onsuccess = (e) => {
+                    const queueId = id;
                     const {action, url, restaurant_id} = e.target.result;
                     console.log('Queue item', queueId, action, url, restaurant_id);
                     if (action === 'toggle-favorite') {
                          DBHelper.toggleFavorite(url, queueId, db).then(() => {
                             console.log('Sent toggle-favorite and delete from store dispatch-queue id: ', queueId);
                             DBHelper.deleteFromQueue(queueId);
+                        });
+                    } else if (action === 'add-review') {
+                        const {
+                            restaurant_id,
+                            name,
+                            rating,
+                            comments} = e.target.result;
+                        const data = {restaurant_id, name, rating, comments};
+                        DBHelper.postRestaurantReview(data).then((review) => {
+                            DBHelper.addToReviewsStore(review).then(() => {
+                                DBHelper.deleteFromQueue(queueId);
+                            });
+                            console.log('SW - Inform users of success posting reivew', review);
                         });
                     } else {
                         console.warn(`Unkown dispatch-queue action: ${action}, id: ${queueId}`);

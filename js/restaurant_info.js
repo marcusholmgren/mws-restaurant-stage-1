@@ -259,7 +259,42 @@ addNewReviewsButton = ({id}) => {
   const button = document.createElement('button');
   button.innerHTML = 'Submit review';
   container.appendChild(button);
-  button.addEventListener('click', postReviewDirectHandler);
+
+  if ('serviceWorker' in navigator && 'SyncManager' in window) {
+    navigator.serviceWorker.getRegistration().then((registration) => {
+      registration.sync.register('add-review');
+      button.addEventListener('click', postReviewSyncHandler);
+    });
+  } else {
+    button.addEventListener('click', postReviewDirectHandler);
+  }
+};
+
+postReviewSyncHandler = (event) => {
+  event.preventDefault();
+  const form = document.getElementById('add-review');
+  if (form.checkValidity()) {
+    const ri = document.getElementById('restaurant_id');
+    const n = document.getElementById('reviewer_name');
+    const r = document.getElementById('rating');
+    const rt = document.getElementById('comment_text');
+    const data = {
+      action: 'add-review',
+      url: `${DBHelper.DATABASE_REVIEWS_URL}/${ri.value}`,
+      restaurant_id: Number.parseInt(ri.value),
+      name: n.value,
+      rating: Number.parseInt(r.value),
+      comments: rt.value};
+
+    DBHelper.addToObjectStore('dispatch-queue', data);
+    console.log('inform user about request queued successfull');
+
+    form.reset();
+    const ratingsNumber = document.getElementById('ratingsnumber');
+    ratingsNumber.innerHTML = 'Rating: 3';
+  } else {
+    form.reportValidity();
+  }
 };
 
 postReviewDirectHandler = (event) => {

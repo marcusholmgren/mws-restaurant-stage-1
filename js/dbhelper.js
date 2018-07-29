@@ -193,9 +193,9 @@ class DBHelper {
     return new Promise((resolve, reject) => {
       DBHelper.openDatabase().then((db) => {
         const store = DBHelper.openObjectStore(db, 'dispatch-queue', 'readwrite');
-        store.delete(queueId);
-        store.onerror = (error) => reject(error);
-        store.onsuccess = () => resolve();
+        const req = store.delete(queueId);
+        req.onerror = (error) => reject(error);
+        req.onsuccess = () => resolve();
       });
     });
   }
@@ -209,9 +209,11 @@ class DBHelper {
     return new Promise((resolve, reject) => {
       DBHelper.openDatabase().then((db) => {
         const store = DBHelper.openObjectStore(db, 'reviews', 'readwrite');
-        store.onerror = (error) => reject(error);
-        store.onsuccess = () => resolve();
-        store.add(review);
+        const req = store.add(review);
+        req.onerror = () => {
+          console.log(`DB - review already existed id: ${review.id}`);
+        };
+        req.onsuccess = () => resolve();
       });
     });
   }
