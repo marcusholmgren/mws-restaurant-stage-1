@@ -3,6 +3,7 @@
 
 document.addEventListener('DOMContentLoaded', (event) => {
   fetchRestaurantFromURL().then((restaurant) => {
+    fillRestaurantHTML(restaurant);
     fetchRestaurantReviews(restaurant);
     return restaurant;
   })
@@ -55,7 +56,6 @@ fetchRestaurantFromURL = () => {
           reject('No restaurant id in URL');
           return;
         }
-        fillRestaurantHTML();
         resolve(restaurant);
       });
     }
