@@ -1,6 +1,6 @@
 importScripts('/js/dbhelper.js');
 
-const CACHE_NAME = 'mws-restaurant-v11';
+const CACHE_NAME = 'mws-restaurant-v12';
 const CACHE_GOOGLE_MAPS = 'GOOGLE_MAPS_CACHE';
 
 self.addEventListener('install', (event) => {
@@ -70,7 +70,7 @@ self.addEventListener('fetch', (event) => {
             return new Response();
         })
         );
-    } else if (requestURL.href.match(String.raw`^http[s]?://.*/restaurants/?(\d+)?`)) {
+    } else if (requestURL.href.match(String.raw`^http[s]?://.*/(restaurants|reviews)/?(\d+)?`)) {
         return;
     } else {
         event.respondWith(

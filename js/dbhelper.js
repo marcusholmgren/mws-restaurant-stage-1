@@ -11,7 +11,7 @@ class DBHelper {
       if (!self.indexedDB) {
         reject('IndexedDB is not supported');
       }
-      const DB_VERSION = 2;
+      const DB_VERSION = 3;
       const DB_NAME = 'mws-restaurant';
       let request = self.indexedDB.open(DB_NAME, DB_VERSION);
 
@@ -29,6 +29,11 @@ class DBHelper {
         if (!db.objectStoreNames.contains('dispatch-queue')) {
           db.createObjectStore('dispatch-queue',
             {autoIncrement: true}
+          );
+        }
+        if (!db.objectStoreNames.contains('reviews')) {
+          db.createObjectStore('reviews',
+            {keyPath: 'id'}
           );
         }
       };
@@ -195,15 +200,62 @@ class DBHelper {
     });
   }
 
+
+  /** 
+   * Add review
+   * @param {object} review
+   */
+  static addToReviewsStore(review) {
+    return new Promise((resolve, reject) => {
+      DBHelper.openDatabase().then((db) => {
+        const store = DBHelper.openObjectStore(db, 'reviews', 'readwrite');
+        store.onerror = (error) => reject(error);
+        store.onsuccess = () => resolve();
+        store.add(review);
+      });
+    });
+  }
+
   /**
-   * Database URL.
-   * Change this to restaurants.json file location on your server.
+   * 
+   * @param {number} restaurantId 
+   */
+  static getAllRestaurantReviews(restaurantId) {
+    return new Promise((resolve, reject) => {
+      DBHelper.openDatabase().then((db) => {
+        let reviews = [];
+        let request = DBHelper.openObjectStore(db, 'reviews').openCursor();
+        request.onsuccess = (event) => {
+          let cursor = event.target.result;
+          if (cursor) {
+            if (cursor.value.restaurant_id === restaurantId) {
+              reviews.push(cursor.value);
+            }
+            cursor.continue();
+          } else {
+            resolve(reviews);
+          }
+        };
+        request.onerror = (event) => reject(event);
+      });
+    });
+  }
+
+  /**
+   * Database restaurants URL.
    */
   static get DATABASE_URL() {
     const port = 1337; // Change this to your server port
     return `http://localhost:${port}/restaurants`;
   }
 
+  /**
+   * Database reviews URL
+   */
+  static get DATABASE_REVIEWS_URL() {
+    const port = 1337; // Change this to your server port
+    return `http://localhost:${port}/reviews`;
+  }
 
   /**
    * Fetch restaurants and add data in IndexedDB.
@@ -211,7 +263,7 @@ class DBHelper {
    */
   static populateRestaurants() {
     return fetch(DBHelper.DATABASE_URL,
-      {accept: 'application/json; charset=utf-8'})
+      {headers: new Headers({'accept': 'application/json; charset=utf-8'})})
       .then((res) => res.json()).then((restaurants) => {
         DBHelper.clearAllRestaurants();
         for (let r of restaurants) {
@@ -386,6 +438,32 @@ class DBHelper {
     return fetch(url, {
         method: 'PUT',
         headers: new Headers({'content-type': 'application/json; charset=utf-8'}),
+    });
+  }
+
+  /**
+   * Add reviews list to IndexedDB reviews store.
+   * @param {Array} reviews 
+   */
+  static populateReviews(reviews) {
+    reviews.forEach((review) => {
+      DBHelper.addToReviewsStore(review);
+    });
+  }
+
+  /**
+   * Fetch restaurants reviews with fallback on IndexedDB when offline
+   * @param {object} restaurant
+   * @return {Promise<Array>} List of reviews 
+   */
+  static fetchRestaurantReviews(restaurant) {
+    return fetch(`${DBHelper.DATABASE_REVIEWS_URL}/?restaurant_id=${restaurant.id}`,
+    {headers: new Headers({'accept': 'application/json; charset=utf-8'})}).then((res) => res.json())
+    .then((reviews) => {
+      DBHelper.populateReviews(reviews);
+      return reviews;
+    }).catch((e) => {
+      return DBHelper.getAllRestaurantReviews(restaurant.id).catch(() => []);
     });
   }
 }

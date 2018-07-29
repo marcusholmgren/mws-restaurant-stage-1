@@ -3,6 +3,9 @@
 
 document.addEventListener('DOMContentLoaded', (event) => {
   fetchRestaurantFromURL().then((restaurant) => {
+    fetchRestaurantReviews(restaurant);
+  })
+  .then((restaurant) => {
     fillBreadcrumb(restaurant);
   });
 });
@@ -57,6 +60,16 @@ fetchRestaurantFromURL = () => {
   });
 };
 
+
+/**
+ * Get reviews for restaurant and add it them to the webpage.
+ */
+fetchRestaurantReviews = (restaurant) => {
+  DBHelper.fetchRestaurantReviews(restaurant).then((reviews) => {
+    fillReviewsHTML(reviews);
+  });
+};
+
 /**
  * Create restaurant HTML and add it to the webpage
  * @param {object} restaurant
@@ -85,8 +98,6 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   if (restaurant.operating_hours) {
     fillRestaurantHoursHTML();
   }
-  // fill reviews
-  fillReviewsHTML();
 };
 
 /**
@@ -120,7 +131,7 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   title.innerHTML = 'Reviews';
   container.appendChild(title);
 
-  if (!reviews) {
+  if (!reviews || reviews.length === 0) {
     const noReviews = document.createElement('p');
     noReviews.innerHTML = 'No reviews yet!';
     container.appendChild(noReviews);
@@ -145,7 +156,7 @@ createReviewHTML = (review) => {
   li.appendChild(name);
 
   const date = document.createElement('p');
-  date.innerHTML = review.date;
+  date.innerHTML = new Date(review.createdAt).toLocaleDateString();
   li.appendChild(date);
 
   const rating = document.createElement('p');
