@@ -21,6 +21,6 @@
   },
   "homepage": "https://github.com/marcusholmgren/mws-restaurant-stage-1#readme",
   "devDependencies": {
-    "eslint-config-google": "^0.9.1"
+    "eslint-config-google": "^0.14.0"
   }
 }
