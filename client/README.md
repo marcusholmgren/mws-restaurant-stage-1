@@ -36,5 +36,5 @@ Most of the code in this project has been written to the ES6 JavaScript specific
 ## Lighthouse Audit Report
 
 Lighthouse audit report from 2018-07-29
-![index lighthouse audit](/img/mws-index-2018-07-29.png "index.html")
-![restaurant lighthouse audit](/img/mws-restaurant-2018-07-29.png "restaurant.html")
+![index lighthouse audit](public/img/mws-index-2018-07-29.png "index.html")
+![restaurant lighthouse audit](public/img/mws-restaurant-2018-07-29.png "restaurant.html")

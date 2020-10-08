@@ -1,4 +1,4 @@
-importScripts('/js/dbhelper.js');
+importScripts('/_dist_/dbhelper_sw.js');
 
 const CACHE_NAME = 'mws-restaurant-v14';
 const CACHE_GOOGLE_MAPS = 'GOOGLE_MAPS_CACHE';
@@ -10,9 +10,9 @@ self.addEventListener('install', (event) => {
                 '/index.html',
                 '/restaurant.html',
                 '/css/styles.css',
-                '/js/dbhelper.js',
-                '/js/main.js',
-                '/js/restaurant_info.js',
+                '/_dist_/dbhelper.js',
+                '/_dist_/main.js',
+                '/_dist_/restaurant_info.js',
             ]);
         }).then(() => {
             DBHelper.populateRestaurants();

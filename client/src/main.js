@@ -1,3 +1,5 @@
+import {DBHelper} from './dbhelper'
+
 // globals restaurants, neighborhoods, cuisines & map;
 self.markers = [];
 const BlackStar = '&#9733;';
@@ -13,16 +15,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
   scrollMaincontentIntoViewOnSkipContent();
 });
 
-registerServiceWorker = () => {
+const registerServiceWorker = () => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('serviceworker.js').then(() => {
+    navigator.serviceWorker.register('/serviceworker.js').then(() => {
     }).catch((error) => {
       console.log('Failed to register serviceWorker.', error);
     });
   }
 };
 
-scrollMaincontentIntoViewOnSkipContent = () => {
+const scrollMaincontentIntoViewOnSkipContent = () => {
   document.querySelector('#skiptocontent > a').addEventListener(
     'click', (event) => {
       setTimeout(() => {
@@ -34,7 +36,7 @@ scrollMaincontentIntoViewOnSkipContent = () => {
 /**
  * Fetch all neighborhoods and set their HTML.
  */
-fetchNeighborhoods = () => {
+const fetchNeighborhoods = () => {
   DBHelper.fetchNeighborhoods().then((neighborhoods) => {
     self.neighborhoods = neighborhoods;
     fillNeighborhoodsHTML();
@@ -47,7 +49,7 @@ fetchNeighborhoods = () => {
  * Set neighborhoods HTML.
  * @param {object[]} neighborhoods
  */
-fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
+const fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
   const select = document.getElementById('neighborhoods-select');
   if (select) {
     neighborhoods.forEach((neighborhood) => {
@@ -62,7 +64,7 @@ fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
 /**
  * Fetch all cuisines and set their HTML.
  */
-fetchCuisines = () => {
+const fetchCuisines = () => {
   DBHelper.fetchCuisines().then((cuisines) => {
     self.cuisines = cuisines;
     fillCuisinesHTML();
@@ -75,7 +77,7 @@ fetchCuisines = () => {
  * Set cuisines HTML.
  * @param {object} cuisines
  */
-fillCuisinesHTML = (cuisines = self.cuisines) => {
+const fillCuisinesHTML = (cuisines = self.cuisines) => {
   const select = document.getElementById('cuisines-select');
   if (select) {
     cuisines.forEach((cuisine) => {
@@ -115,7 +117,7 @@ window.initMap = () => {
 /**
  * Update page and map for current restaurants.
  */
-updateRestaurants = () => {
+const updateRestaurants = () => {
   const cSelect = document.getElementById('cuisines-select');
   const nSelect = document.getElementById('neighborhoods-select');
 
@@ -144,7 +146,7 @@ updateRestaurants = () => {
  * Clear current restaurants, their HTML and remove their map markers.
  * @param {object[]} restaurants
  */
-resetRestaurants = (restaurants) => {
+const resetRestaurants = (restaurants) => {
   // Remove all restaurants
   self.restaurants = [];
   const ul = document.getElementById('restaurants-list');
@@ -160,7 +162,7 @@ resetRestaurants = (restaurants) => {
  * Create all restaurants HTML and add them to the webpage.
  * @param {object[]} restaurants
  */
-fillRestaurantsHTML = (restaurants = self.restaurants) => {
+const fillRestaurantsHTML = (restaurants = self.restaurants) => {
   const ul = document.getElementById('restaurants-list');
   restaurants.forEach((restaurant) => {
     ul.append(createRestaurantHTML(restaurant));
@@ -173,7 +175,7 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
  * @param {object} restaurant
  * @return {HTMLLIElement} list item
  */
-createRestaurantHTML = (restaurant) => {
+const createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
 
   const image = document.createElement('img');
@@ -225,14 +227,14 @@ createRestaurantHTML = (restaurant) => {
  * @param {boolean} isFavorite True if restaurant is favorite
  * @return {string} CSS Style
  */
-getFavoriteStarStyle = (isFavorite) => {
+const getFavoriteStarStyle = (isFavorite) => {
   if (isFavorite === true || isFavorite === 'true') {
     return 'rating-star-favorite';
   }
   return 'rating-star';
 };
 
-isRestaurantFavorite = (restaurant) => (restaurant.is_favorite === true || restaurant.is_favorite === 'true');
+const isRestaurantFavorite = (restaurant) => (restaurant.is_favorite === true || restaurant.is_favorite === 'true');
 
 
 /**
@@ -240,7 +242,7 @@ isRestaurantFavorite = (restaurant) => (restaurant.is_favorite === true || resta
  * @param {HTMLButtonElement} favorite
  * @return {Promise}
  */
-updateRestaurantAndButton = (favorite) => {
+const updateRestaurantAndButton = (favorite) => {
   return new Promise((resolve, reject) => {
     const restaurant_id = Number.parseInt(favorite.getAttribute('data-restaurant-id'));
     DBHelper.getRestaurantById(restaurant_id).then((restaurant) => {
@@ -262,7 +264,7 @@ updateRestaurantAndButton = (favorite) => {
  * Button click handler for browsers that don't yet support SyncManager
  * @param {MouseEvent} event
  */
-favoriteRestaurantDirectHandler = (event) => {
+const favoriteRestaurantDirectHandler = (event) => {
   event.preventDefault();
   const favorite = event.target;
   updateRestaurantAndButton(favorite).then(({restaurant_id, url}) => {
@@ -274,7 +276,7 @@ favoriteRestaurantDirectHandler = (event) => {
  * Button click handler for browsers that support SyncManager.
  * @param {MouseEvent} event
  */
-favoriteRestaurantSyncHandler = (event) => {
+const favoriteRestaurantSyncHandler = (event) => {
   event.preventDefault();
   const favorite = event.target;
   updateRestaurantAndButton(favorite).then(({restaurant_id, url}) => {
@@ -287,7 +289,7 @@ favoriteRestaurantSyncHandler = (event) => {
  * Add markers for current restaurants to the map.
  * @param {object[]} restaurants
  */
-addMarkersToMap = (restaurants = self.restaurants) => {
+const addMarkersToMap = (restaurants = self.restaurants) => {
   restaurants.forEach((restaurant) => {
     // Add marker to the map
     const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.map);

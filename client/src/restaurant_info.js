@@ -40,7 +40,7 @@ window.initMap = () => {
  * Get current restaurant from page URL.
  * @return {Promise} Restaurant
  */
-fetchRestaurantFromURL = () => {
+const fetchRestaurantFromURL = () => {
   return new Promise((resolve, reject) => {
     if (self.restaurant) { // restaurant already fetched!
       resolve(self.restaurant);
@@ -66,7 +66,7 @@ fetchRestaurantFromURL = () => {
 /**
  * Get reviews for restaurant and add it them to the webpage.
  */
-fetchRestaurantReviews = (restaurant) => {
+const fetchRestaurantReviews = (restaurant) => {
   DBHelper.fetchRestaurantReviews(restaurant).then((reviews) => {
     fillReviewsHTML(reviews);
   });
@@ -76,7 +76,7 @@ fetchRestaurantReviews = (restaurant) => {
  * Create restaurant HTML and add it to the webpage
  * @param {object} restaurant
  */
-fillRestaurantHTML = (restaurant = self.restaurant) => {
+const fillRestaurantHTML = (restaurant = self.restaurant) => {
   const name = document.getElementById('restaurant-name');
   if (restaurant.is_favorite === true || restaurant.is_favorite === 'true') {
     const BlackStar = '&#9733;';
@@ -106,7 +106,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
  * Create restaurant operating hours HTML table and add it to the webpage.
  * @param {object[]} operatingHours
  */
-fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => {
+const fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => {
   const hours = document.getElementById('restaurant-hours');
   for (let key in operatingHours) {
     const row = document.createElement('tr');
@@ -127,7 +127,7 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
  * Create all reviews HTML and add them to the webpage.
  * @param {object[]} reviews
  */
-fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
@@ -151,7 +151,7 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
  * @param {object} review
  * @return {HTMLLIElement} list item
  */
-createReviewHTML = (review) => {
+const createReviewHTML = (review) => {
   const li = document.createElement('li');
   const name = document.createElement('p');
   name.innerHTML = review.name;
@@ -176,7 +176,7 @@ createReviewHTML = (review) => {
  * Add restaurant name to the breadcrumb navigation menu
  * @param {object} restaurant
  */
-fillBreadcrumb = (restaurant = self.restaurant) => {
+const fillBreadcrumb = (restaurant = self.restaurant) => {
   const breadcrumb = document.getElementById('breadcrumb');
   const li = document.createElement('li');
   li.innerHTML = restaurant.name;
@@ -189,7 +189,7 @@ fillBreadcrumb = (restaurant = self.restaurant) => {
  * Add restaurant review form
  * @param {number} id Restaurant identity
  */
-addNewReviewsButton = ({id}) => {
+const addNewReviewsButton = ({id}) => {
   const container = document.getElementById('add-review');
 
   const restaurant = document.createElement('input');
@@ -270,7 +270,7 @@ addNewReviewsButton = ({id}) => {
   }
 };
 
-postReviewSyncHandler = (event) => {
+const postReviewSyncHandler = (event) => {
   event.preventDefault();
   const form = document.getElementById('add-review');
   if (form.checkValidity()) {
@@ -297,7 +297,7 @@ postReviewSyncHandler = (event) => {
   }
 };
 
-postReviewDirectHandler = (event) => {
+const postReviewDirectHandler = (event) => {
   event.preventDefault();
   const form = document.getElementById('add-review');
   if (form.checkValidity()) {
@@ -329,7 +329,7 @@ postReviewDirectHandler = (event) => {
  * @param {string} url
  * @return {string} name parameter
  */
-getParameterByName = (name, url) => {
+const getParameterByName = (name, url) => {
   if (!url) {
     url = window.location.href;
   }
@@ -349,7 +349,7 @@ getParameterByName = (name, url) => {
  * Display notification message in HTML document.
  * @param {string} notificationText 
  */
-displayMessageNotification = (notificationText) => {
+const displayMessageNotification = (notificationText) => {
   const messageNotification = document.getElementById('notification');
   messageNotification.innerHTML = notificationText;
   messageNotification.className = 'notification-display';
